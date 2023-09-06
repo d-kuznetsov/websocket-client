@@ -1,5 +1,5 @@
 <script setup>
-import { inject, ref } from 'vue'
+import { inject, ref, onUnmounted } from 'vue'
 
 const ws = inject('ws')
 const messages = ref([])
@@ -7,11 +7,15 @@ const messages = ref([])
 function addMessage(message) {
   messages.value.push(message)
 }
-ws.addMessageListener(addMessage)
+ws.subscribe(addMessage)
 
 function sendMessage() {
   ws.sendMessage('Hi from client')
 }
+
+onUnmounted(() => {
+  ws.unsubscribe(addMessage)
+})
 </script>
 
 <template>

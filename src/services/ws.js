@@ -27,8 +27,14 @@ class WebSocketService {
     }
   }
 
-  addMessageListener(callback) {
-    this.onMessageCallbacks.push(callback)
+  subscribe(...callbacks) {
+    this.onMessageCallbacks.push(...callbacks)
+  }
+
+  unsubscribe(...callbacks) {
+    this.onMessageCallbacks = this.onMessageCallbacks.filter((fn) => {
+      return ![...callbacks].find((fn2) => fn2 == fn)
+    })
   }
 
   close() {
