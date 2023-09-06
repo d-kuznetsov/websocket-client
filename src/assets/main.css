@@ -1,3 +1,11 @@
+:root {
+  --color-sky: #0ea5e9;
+  --color-emerald: #10b981;
+
+  --color-primary: var(--color-sky);
+  --color-secondary: var(--color-emerald);
+}
+
 *,
 *::before,
 *::after {
