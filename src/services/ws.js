@@ -5,7 +5,7 @@ class WebSocketService {
   }
 
   connect() {
-    this.socket = new WebSocket(import.meta.env.VITE_WEB_SOCKET)
+    this.socket = new WebSocket(import.meta.env.VITE_WEB_SOCKET_API)
 
     this.socket.addEventListener('open', (event) => {
       console.log('WebSocket connection opened:', event)
