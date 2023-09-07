@@ -49,9 +49,9 @@ function handleMove(data) {
 function handleGameOver({ type, data }) {
   if (type === 'gameOver') {
     board.value = data.board
-    appState.value = STATE_GAME_OVER
     result.value = data.result
     activePlayer.value = null
+    appState.value = STATE_GAME_OVER
   }
 }
 
@@ -73,7 +73,7 @@ ws.connect()
     <button>Try Again</button>
     <main class="App-main">
       <Waiting v-if="appState === STATE_WAITING" />
-      <Board v-else :board="board" :me="self" :activePlayer="activePlayer" @move="handleMove" />
+      <Board v-else :board="board" :self="self" :activePlayer="activePlayer" @move="handleMove" />
     </main>
   </div>
 </template>

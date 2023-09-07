@@ -3,13 +3,13 @@ import { computed } from 'vue'
 
 const props = defineProps({
   board: Object,
-  me: String,
+  self: String,
   activePlayer: String
 })
 
 const emit = defineEmits(['move'])
 
-const isActive = computed(() => props.me === props.activePlayer)
+const isActive = computed(() => props.self === props.activePlayer)
 
 function handleMove(row, col) {
   if (isActive.value) {
@@ -22,38 +22,28 @@ function handleMove(row, col) {
 </script>
 
 <template>
-  <div class="Game">
-    <div class="Game-board">
-      <div class="Game-row" v-for="(row, rowIdx) in board" :key="rowIdx">
-        <div
-          class="Game-col"
-          v-for="(col, colIdx) in row"
-          :key="colIdx"
-          :class="{ 'Game-col__isActive': isActive }"
-          @click="handleMove(rowIdx, colIdx)"
-        >
-          {{ board[rowIdx][colIdx] }}
-        </div>
+  <div class="Board">
+    <div class="Board-row" v-for="(row, rowIdx) in board" :key="rowIdx">
+      <div
+        class="Board-col"
+        v-for="(col, colIdx) in row"
+        :key="colIdx"
+        :class="{ 'Board-col__isActive': isActive }"
+        @click="handleMove(rowIdx, colIdx)"
+      >
+        {{ board[rowIdx][colIdx] }}
       </div>
     </div>
   </div>
 </template>
 
 <style>
-.Game {
+.Board {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-
-  &-board {
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
-    width: 300px;
-    height: 300px;
-  }
+  justify-content: stretch;
+  width: 300px;
+  height: 300px;
 
   &-row {
     display: flex;
