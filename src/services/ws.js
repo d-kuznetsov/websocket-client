@@ -1,32 +1,24 @@
 class WebSocketService {
   constructor() {
     this.socket = null
-    this.messageHandlers = []
     this.errorHandlers = []
-    this.closeHandlers = []
-    this.msgHendlers = {}
+    this.messageHandlers = {}
   }
 
   connect() {
     this.socket = new WebSocket(import.meta.env.VITE_WEB_SOCKET_API)
 
-    this.socket.addEventListener('open', (event) => {
-      console.log('WebSocket connection opened:', event)
+    this.socket.addEventListener('close', () => {
+      this.errorHandlers.forEach((handler) => handler())
     })
 
-    this.socket.addEventListener('close', (event) => {
-      console.log('WebSocket connection closed:', event)
-      this.closeHandlers.forEach((handler) => handler())
-    })
-
-    this.socket.addEventListener('error', (event) => {
-      console.log('WebSocket connection closed:', event)
+    this.socket.addEventListener('error', () => {
       this.errorHandlers.forEach((handler) => handler())
     })
 
     this.socket.addEventListener('message', (event) => {
       const { type, data } = JSON.parse(event.data)
-      this.msgHendlers[type] && this.msgHendlers[type].forEach((handler) => handler(data))
+      this.messageHandlers[type] && this.messageHandlers[type].forEach((handler) => handler(data))
     })
   }
 
@@ -36,15 +28,11 @@ class WebSocketService {
     }
   }
 
-  addMessageHandlers(type, handler) {
-    if (!this.msgHendlers[type]) {
-      this.msgHendlers[type] = []
+  addMessageHandler(type, handler) {
+    if (!this.messageHandlers[type]) {
+      this.messageHandlers[type] = []
     }
-    this.msgHendlers[type].push(handler)
-  }
-
-  addCloseHandler(handler) {
-    this.closeHandlers.push(handler)
+    this.messageHandlers[type].push(handler)
   }
 
   addErrorHandler(handler) {
