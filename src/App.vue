@@ -27,35 +27,32 @@ const activePlayerSymbol = ref('')
 const myPlayerSymbol = ref('')
 const result = ref('')
 
-ws.addMessageHandlers(MSG_WAIT, function handleWaiting() {
+ws.addMessageHandler(MSG_WAIT, function handleWaiting() {
   appState.value = STATE_WAITING
 })
 
-ws.addMessageHandlers(MSG_START, function handlePlaying(data) {
+ws.addMessageHandler(MSG_START, function handlePlaying(data) {
   board.value = data.board
   activePlayerSymbol.value = data.activePlayer
   myPlayerSymbol.value = data.symbol
   appState.value = STATE_PLAYING
 })
 
-ws.addMessageHandlers(MSG_UPDATE, function handleUpdate(data) {
+ws.addMessageHandler(MSG_UPDATE, function handleUpdate(data) {
   board.value = data.board
   activePlayerSymbol.value = data.activePlayer
 })
 
-ws.addMessageHandlers(MSG_FINISH, function handleGameOver(data) {
+ws.addMessageHandler(MSG_FINISH, function handleGameOver(data) {
   board.value = data.board
   result.value = data.result
   activePlayerSymbol.value = ''
   appState.value = STATE_GAME_OVER
 })
 
-function handleError() {
+ws.addErrorHandler(function handleError() {
   appState.value = STATE_ERROR
-}
-
-ws.addCloseHandler(handleError)
-ws.addErrorHandler(handleError)
+})
 
 function handleMove(data) {
   ws.sendMessage({
@@ -96,7 +93,6 @@ ws.connect()
 .App {
   display: flex;
   flex-direction: column;
-  background-color: #eee;
   min-height: 100vh;
   max-width: 640px;
   margin: 0 auto;
