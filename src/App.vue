@@ -1,42 +1,46 @@
 <script setup>
-import { provide, ref } from 'vue'
+import { ref } from 'vue'
 import WebSocketService from './services/ws.js'
 import Board from './components/Board.vue'
 import Waiting from './components/Waiting.vue'
 
-const wsService = new WebSocketService()
-provide('ws', wsService)
+const ws = new WebSocketService()
 
-const appState = ref('waiting')
+const STATE_WAITING = 'waiting'
+const STATE_PLAYING = 'playing'
+const STATE_GAME_OVER = 'game-over'
+const STATE_ERROR = 'error'
+
+const appState = ref(STATE_WAITING)
 const board = ref(null)
-const currentPlayer = ref(null)
-const me = ref(null)
+const activePlayer = ref(null)
+const self = ref(null)
 const result = ref(null)
 
 function handleWaiting({ type }) {
   if (type === 'waiting') {
-    appState.value = 'waiting'
+    appState.value = STATE_WAITING
   }
 }
 
 function handlePlaying({ type, data }) {
   if (type === 'playing') {
     board.value = data.board
-    currentPlayer.value = data.currentPlayer
-    me.value = data.symbol
-    appState.value = 'playing'
+    activePlayer.value = data.activePlayer
+    self.value = data.symbol
+    appState.value = STATE_PLAYING
   }
 }
 
 function handleUpdate({ type, data }) {
   if (type === 'update') {
     board.value = data.board
-    currentPlayer.value = data.currentPlayer
+    activePlayer.value = data.activePlayer
   }
 }
 
 function handleMove(data) {
-  wsService.sendMessage({
+  ws.sendMessage({
     type: 'move',
     data
   })
@@ -45,15 +49,21 @@ function handleMove(data) {
 function handleGameOver({ type, data }) {
   if (type === 'gameOver') {
     board.value = data.board
-    appState.value = 'gameOver'
+    appState.value = STATE_GAME_OVER
     result.value = data.result
-    currentPlayer.value = null
+    activePlayer.value = null
   }
 }
 
-wsService.subscribe(handleWaiting, handlePlaying, handleUpdate, handleGameOver)
+function handleError() {
+  appState.value = STATE_ERROR
+}
 
-wsService.connect()
+ws.addMessageHandlers(handleWaiting, handlePlaying, handleUpdate, handleGameOver)
+ws.addCloseHandler(handleError)
+ws.addErrorHandler(handleError)
+
+ws.connect()
 </script>
 
 <template>
@@ -62,8 +72,8 @@ wsService.connect()
     <div>{{ result }}</div>
     <button>Try Again</button>
     <main class="App-main">
-      <Waiting v-if="appState === 'waiting'" />
-      <Board v-else :board="board" :me="me" :currentPlayer="currentPlayer" @move="handleMove" />
+      <Waiting v-if="appState === STATE_WAITING" />
+      <Board v-else :board="board" :me="self" :activePlayer="activePlayer" @move="handleMove" />
     </main>
   </div>
 </template>
