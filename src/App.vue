@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import WebSocketService from './services/ws.js'
 import Board from './components/Board.vue'
-import Waiting from './components/Waiting.vue'
+import Spinner from './components/Spinner.vue'
 
 const ws = new WebSocketService()
 
@@ -72,8 +72,16 @@ ws.connect()
     <div>{{ result }}</div>
     <button>Try Again</button>
     <main class="App-main">
-      <Waiting v-if="appState === STATE_WAITING" />
-      <Board v-else :board="board" :self="self" :activePlayer="activePlayer" @move="handleMove" />
+      <div v-if="appState === STATE_WAITING" class="App-waiting">
+        <Spinner />
+      </div>
+      <div v-else-if="appState === STATE_ERROR" class="App-error">
+        <div>Error</div>
+        <button>Try Again</button>
+      </div>
+      <div v-else class="App-playing">
+        <Board :board="board" :self="self" :activePlayer="activePlayer" @move="handleMove" />
+      </div>
     </main>
   </div>
 </template>
@@ -86,5 +94,16 @@ ws.connect()
   min-height: 100vh;
   max-width: 640px;
   margin: 0 auto;
+
+  &-header {
+    flex: 0;
+  }
+
+  &-main {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 </style>
