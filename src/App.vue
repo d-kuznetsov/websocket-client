@@ -11,6 +11,7 @@ const appState = ref('waiting')
 const board = ref(null)
 const currentPlayer = ref(null)
 const me = ref(null)
+const result = ref(null)
 
 function handleWaiting({ type }) {
   if (type === 'waiting') {
@@ -31,8 +32,6 @@ function handleUpdate({ type, data }) {
   if (type === 'update') {
     board.value = data.board
     currentPlayer.value = data.currentPlayer
-    // me.value = data.symbol
-    // appState.value = 'playing'
   }
 }
 
@@ -43,7 +42,16 @@ function handleMove(data) {
   })
 }
 
-wsService.subscribe(handleWaiting, handlePlaying, handleUpdate)
+function handleGameOver({ type, data }) {
+  if (type === 'gameOver') {
+    board.value = data.board
+    appState.value = 'gameOver'
+    result.value = data.result
+    currentPlayer.value = null
+  }
+}
+
+wsService.subscribe(handleWaiting, handlePlaying, handleUpdate, handleGameOver)
 
 wsService.connect()
 </script>
@@ -51,15 +59,11 @@ wsService.connect()
 <template>
   <div class="App">
     <header class="App-header"></header>
+    <div>{{ result }}</div>
+    <button>Try Again</button>
     <main class="App-main">
-      <Board
-        v-if="appState === 'playing'"
-        :board="board"
-        :me="me"
-        :currentPlayer="currentPlayer"
-        @move="handleMove"
-      />
-      <Waiting v-else />
+      <Waiting v-if="appState === 'waiting'" />
+      <Board v-else :board="board" :me="me" :currentPlayer="currentPlayer" @move="handleMove" />
     </main>
   </div>
 </template>
