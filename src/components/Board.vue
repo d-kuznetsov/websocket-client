@@ -1,5 +1,7 @@
 <script setup>
 import { computed } from 'vue'
+import X from './icons/X.vue'
+import O from './icons/O.vue'
 
 const props = defineProps({
   board: Object,
@@ -26,12 +28,13 @@ function handleMove(row, col) {
     <div class="Board-row" v-for="(row, rowIdx) in board" :key="rowIdx">
       <div
         class="Board-col"
-        v-for="(col, colIdx) in row"
+        v-for="(_, colIdx) in row"
         :key="colIdx"
-        :class="{ 'Board-col__isActive': isActive }"
+        :class="{ 'Board-col__isActive': isActive && !board[rowIdx][colIdx] }"
         @click="handleMove(rowIdx, colIdx)"
       >
-        {{ board[rowIdx][colIdx] }}
+        <X v-if="board[rowIdx][colIdx] == 'X'" class="Board-X" />
+        <O v-else-if="board[rowIdx][colIdx] == 'O'" class="Board-O" />
       </div>
     </div>
   </div>
@@ -42,8 +45,6 @@ function handleMove(row, col) {
   display: flex;
   flex-direction: column;
   justify-content: stretch;
-  width: 300px;
-  height: 300px;
 
   &-row {
     display: flex;
@@ -56,10 +57,29 @@ function handleMove(row, col) {
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 1px solid;
+    border: 2px dashed var(--color-grey);
+
+    @media (min-width: 480px) {
+      & {
+        width: 160px;
+        height: 160px;
+      }
+    }
 
     &__isActive {
       cursor: pointer;
+    }
+  }
+
+  &-X {
+    path {
+      stroke: var(--color-primary);
+    }
+  }
+
+  &-O {
+    path {
+      stroke: var(--color-secondary);
     }
   }
 }
