@@ -11,6 +11,12 @@ const STATE_PLAYING = 'playing'
 const STATE_GAME_OVER = 'game-over'
 const STATE_ERROR = 'error'
 
+const MSG_WAIT = 'waiting'
+const MSG_START = 'playing'
+const MSG_UPDATE = 'update'
+const MSG_MOVE = 'move'
+const MSG_FINISH = 'game-over'
+
 const appState = ref(STATE_WAITING)
 const board = ref(null)
 const activePlayer = ref(null)
@@ -18,13 +24,13 @@ const self = ref(null)
 const result = ref(null)
 
 function handleWaiting({ type }) {
-  if (type === 'waiting') {
+  if (type === MSG_WAIT) {
     appState.value = STATE_WAITING
   }
 }
 
 function handlePlaying({ type, data }) {
-  if (type === 'playing') {
+  if (type === MSG_START) {
     board.value = data.board
     activePlayer.value = data.activePlayer
     self.value = data.symbol
@@ -33,7 +39,7 @@ function handlePlaying({ type, data }) {
 }
 
 function handleUpdate({ type, data }) {
-  if (type === 'update') {
+  if (type === MSG_UPDATE) {
     board.value = data.board
     activePlayer.value = data.activePlayer
   }
@@ -41,13 +47,13 @@ function handleUpdate({ type, data }) {
 
 function handleMove(data) {
   ws.sendMessage({
-    type: 'move',
+    type: MSG_MOVE,
     data
   })
 }
 
 function handleGameOver({ type, data }) {
-  if (type === 'gameOver') {
+  if (type === MSG_FINISH) {
     board.value = data.board
     result.value = data.result
     activePlayer.value = null
