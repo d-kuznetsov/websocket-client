@@ -7,23 +7,43 @@ import Waiting from './components/Waiting.vue'
 const wsService = new WebSocketService()
 provide('ws', wsService)
 
-const APP_STATE = {
-  WAITING: 'waiting',
-  PLAYING: 'playing',
-  ERROR: 'error'
-}
+const appState = ref('waiting')
+const board = ref(null)
+const currentPlayer = ref(null)
+const me = ref(null)
 
-const appState = ref(APP_STATE.WAITING)
-
-const handleStateChange = ({ type }) => {
-  if (type === APP_STATE.WAITING) {
-    appState.value = APP_STATE.WAITING
-  } else if (type === APP_STATE.PLAYING) {
-    appState.value = APP_STATE.PLAYING
+function handleWaiting({ type }) {
+  if (type === 'waiting') {
+    appState.value = 'waiting'
   }
 }
 
-wsService.subscribe(handleStateChange)
+function handlePlaying({ type, data }) {
+  if (type === 'playing') {
+    board.value = data.board
+    currentPlayer.value = data.currentPlayer
+    me.value = data.symbol
+    appState.value = 'playing'
+  }
+}
+
+function handleUpdate({ type, data }) {
+  if (type === 'update') {
+    board.value = data.board
+    currentPlayer.value = data.currentPlayer
+    // me.value = data.symbol
+    // appState.value = 'playing'
+  }
+}
+
+function handleMove(data) {
+  wsService.sendMessage({
+    type: 'move',
+    data
+  })
+}
+
+wsService.subscribe(handleWaiting, handlePlaying, handleUpdate)
 
 wsService.connect()
 </script>
@@ -32,7 +52,13 @@ wsService.connect()
   <div class="App">
     <header class="App-header"></header>
     <main class="App-main">
-      <Board v-if="appState === 'playing'" />
+      <Board
+        v-if="appState === 'playing'"
+        :board="board"
+        :me="me"
+        :currentPlayer="currentPlayer"
+        @move="handleMove"
+      />
       <Waiting v-else />
     </main>
   </div>
