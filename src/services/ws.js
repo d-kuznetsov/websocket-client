@@ -4,6 +4,7 @@ class WebSocketService {
     this.messageHandlers = []
     this.errorHandlers = []
     this.closeHandlers = []
+    this.msgHendlers = {}
   }
 
   connect() {
@@ -24,8 +25,8 @@ class WebSocketService {
     })
 
     this.socket.addEventListener('message', (event) => {
-      const message = JSON.parse(event.data)
-      this.messageHandlers.forEach((callback) => callback(message))
+      const { type, data } = JSON.parse(event.data)
+      this.msgHendlers[type] && this.msgHendlers[type].forEach((handler) => handler(data))
     })
   }
 
@@ -35,8 +36,11 @@ class WebSocketService {
     }
   }
 
-  addMessageHandlers(...callbacks) {
-    this.messageHandlers.push(...callbacks)
+  addMessageHandlers(type, handler) {
+    if (!this.msgHendlers[type]) {
+      this.msgHendlers[type] = []
+    }
+    this.msgHendlers[type].push(handler)
   }
 
   addCloseHandler(handler) {
@@ -45,12 +49,6 @@ class WebSocketService {
 
   addErrorHandler(handler) {
     this.errorHandlers.push(handler)
-  }
-
-  unsubscribe(...callbacks) {
-    this.messageHandlers = this.messageHandlers.filter((fn) => {
-      return ![...callbacks].find((fn2) => fn2 == fn)
-    })
   }
 
   close() {

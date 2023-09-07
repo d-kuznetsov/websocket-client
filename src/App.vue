@@ -17,33 +17,45 @@ const MSG_UPDATE = 'update'
 const MSG_MOVE = 'move'
 const MSG_FINISH = 'game-over'
 
+const RESULT_WIN = 'win'
+const RESULT_LOSE = 'lose'
+const RESULT_DRAW = 'draw'
+
 const appState = ref(STATE_WAITING)
 const board = ref(null)
-const activePlayer = ref(null)
-const self = ref(null)
-const result = ref(null)
+const activePlayerSymbol = ref('')
+const myPlayerSymbol = ref('')
+const result = ref('')
 
-function handleWaiting({ type }) {
-  if (type === MSG_WAIT) {
-    appState.value = STATE_WAITING
-  }
+ws.addMessageHandlers(MSG_WAIT, function handleWaiting() {
+  appState.value = STATE_WAITING
+})
+
+ws.addMessageHandlers(MSG_START, function handlePlaying(data) {
+  board.value = data.board
+  activePlayerSymbol.value = data.activePlayer
+  myPlayerSymbol.value = data.symbol
+  appState.value = STATE_PLAYING
+})
+
+ws.addMessageHandlers(MSG_UPDATE, function handleUpdate(data) {
+  board.value = data.board
+  activePlayerSymbol.value = data.activePlayer
+})
+
+ws.addMessageHandlers(MSG_FINISH, function handleGameOver(data) {
+  board.value = data.board
+  result.value = data.result
+  activePlayerSymbol.value = ''
+  appState.value = STATE_GAME_OVER
+})
+
+function handleError() {
+  appState.value = STATE_ERROR
 }
 
-function handlePlaying({ type, data }) {
-  if (type === MSG_START) {
-    board.value = data.board
-    activePlayer.value = data.activePlayer
-    self.value = data.symbol
-    appState.value = STATE_PLAYING
-  }
-}
-
-function handleUpdate({ type, data }) {
-  if (type === MSG_UPDATE) {
-    board.value = data.board
-    activePlayer.value = data.activePlayer
-  }
-}
+ws.addCloseHandler(handleError)
+ws.addErrorHandler(handleError)
 
 function handleMove(data) {
   ws.sendMessage({
@@ -51,23 +63,6 @@ function handleMove(data) {
     data
   })
 }
-
-function handleGameOver({ type, data }) {
-  if (type === MSG_FINISH) {
-    board.value = data.board
-    result.value = data.result
-    activePlayer.value = null
-    appState.value = STATE_GAME_OVER
-  }
-}
-
-function handleError() {
-  appState.value = STATE_ERROR
-}
-
-ws.addMessageHandlers(handleWaiting, handlePlaying, handleUpdate, handleGameOver)
-ws.addCloseHandler(handleError)
-ws.addErrorHandler(handleError)
 
 ws.connect()
 </script>
@@ -86,7 +81,12 @@ ws.connect()
         <button>Try Again</button>
       </div>
       <div v-else class="App-playing">
-        <Board :board="board" :self="self" :activePlayer="activePlayer" @move="handleMove" />
+        <Board
+          :board="board"
+          :myPlayerSymbol="myPlayerSymbol"
+          :activePlayerSymbol="activePlayerSymbol"
+          @move="handleMove"
+        />
       </div>
     </main>
   </div>

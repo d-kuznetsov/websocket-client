@@ -3,13 +3,13 @@ import { computed } from 'vue'
 
 const props = defineProps({
   board: Object,
-  self: String,
-  activePlayer: String
+  myPlayerSymbol: String,
+  activePlayerSymbol: String
 })
 
 const emit = defineEmits(['move'])
 
-const isActive = computed(() => props.self === props.activePlayer)
+const isActive = computed(() => props.myPlayerSymbol === props.activePlayerSymbol)
 
 function handleMove(row, col) {
   if (isActive.value) {
