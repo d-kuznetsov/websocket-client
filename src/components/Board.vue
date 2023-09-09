@@ -30,8 +30,8 @@ function handleMove(row, col) {
         class="Board-col"
         v-for="(_, colIdx) in row"
         :key="colIdx"
-        :class="{ 'Board-col__isActive': isActive && !board[rowIdx][colIdx] }"
-        @click="handleMove(rowIdx, colIdx)"
+        :class="{ 'Board-col__isActive': isActive }"
+        @click.stop="handleMove(rowIdx, colIdx)"
       >
         <X v-if="board[rowIdx][colIdx] == 'X'" class="Board-X" />
         <O v-else-if="board[rowIdx][colIdx] == 'O'" class="Board-O" />

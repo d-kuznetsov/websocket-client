@@ -2,9 +2,15 @@
   --color-sky: #0ea5e9;
   --color-emerald: #10b981;
   --color-grey: #d1d5db;
+  --color-yellow: #eab308;
+  --color-green: #22c55e;
+  --color-red: #ef4444;
+  --color-slate: #475569;
 
   --color-primary: var(--color-sky);
-  --color-secondary: var(--color-emerald);
+  --color-secondary: var(--color-yellow);
+  --color-success: var(--color-green);
+  --color-danger: var(--color-red);
 }
 
 *,
@@ -21,7 +27,8 @@ body {
   line-height: 1.6;
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
     Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-  font-size: 15px;
+  font-size: 20px;
+  color: var(--color-slate);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
