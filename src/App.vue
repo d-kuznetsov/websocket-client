@@ -49,6 +49,7 @@ ws.addMessageHandler('finish', function handleGameOver(data) {
   joke.value = data.joke
   activePlayerSymbol.value = ''
   appState.value = STATE_GAME_OVER
+  ws.close()
 })
 
 ws.addErrorHandler(function handleError() {
@@ -63,19 +64,25 @@ function handleMove(data) {
   })
 }
 
+function reload() {
+  location.reload()
+}
+
 ws.connect()
 </script>
 
 <template>
   <div class="App">
     <header class="App-header">
-      <div v-if="isError" class="App-note App-note__error">Something went wrong.</div>
+      <div v-if="isWaiting" class="App-note">Waiting for an opponent . . .</div>
+
       <div v-else-if="isPlaying" class="App-note">
         <div>You are playing with {{ myPlayerSymbol }}.</div>
         <div>
           {{ isPlayerActive ? 'Your turn' : "Wait for your opponent's move." }}
         </div>
       </div>
+
       <div
         v-else-if="isGameOver"
         class="App-note"
@@ -86,15 +93,15 @@ ws.connect()
       >
         {{ isWon ? 'You won' : isLoss ? 'You lose' : 'Draw' }}
       </div>
-      <div v-else-if="isWaiting" class="App-note">Waiting for an opponent . . .</div>
+
+      <div v-else-if="isError" class="App-note App-note__error">Something went wrong.</div>
     </header>
+
     <main class="App-main">
       <div v-if="isWaiting" class="App-waiting">
         <Spinner />
       </div>
-      <div v-else-if="isError" class="App-error">
-        <button class="App-reload">Try again</button>
-      </div>
+
       <div v-else-if="isPlaying" class="App-playing">
         <Board
           :board="board"
@@ -103,10 +110,15 @@ ws.connect()
           @move="handleMove"
         />
       </div>
+
       <div v-else-if="isGameOver" class="App-gameOver">
         <div v-if="joke">Your prize is a joke from Chuck Norris.</div>
         <div v-if="joke">{{ joke }}</div>
-        <button class="App-reload">Try again</button>
+        <button class="App-reload" @click="reload">Try again</button>
+      </div>
+
+      <div v-else-if="isError" class="App-error">
+        <button class="App-reload" @click="reload">Try again</button>
       </div>
     </main>
   </div>
