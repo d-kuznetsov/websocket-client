@@ -31,6 +31,7 @@ ws.addMessageHandler('wait', function handleWaiting() {
 })
 
 ws.addMessageHandler('start', function handlePlaying(data) {
+  debugger
   board.value = data.board
   myPlayerSymbol.value = data.symbol
   activePlayerSymbol.value = data.activePlayerSymbol
@@ -43,18 +44,13 @@ ws.addMessageHandler('update', function handleUpdate(data) {
 })
 
 ws.addMessageHandler('finish', function handleGameOver(data) {
-  console.log(data)
-  board.value = data.board
   result.value = data.result
   joke.value = data.joke
-  activePlayerSymbol.value = ''
   appState.value = STATE_GAME_OVER
-  ws.close()
 })
 
 ws.addErrorHandler(function handleError() {
   appState.value = STATE_ERROR
-  ws.close()
 })
 
 function handleMove(data) {
@@ -134,16 +130,19 @@ ws.connect()
 
   &-header {
     flex: 0;
-    min-height: 100px;
     display: flex;
     justify-content: center;
     align-items: center;
   }
 
   &-note {
+    min-height: 150px;
     font-size: 30px;
     font-weight: 700;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
 
     &__won {
       color: var(--color-success);
@@ -167,7 +166,7 @@ ws.connect()
 
   &-gameOver {
     display: flex;
-    height: calc(100vh - 100px);
+    height: calc(100vh - 150px);
     flex-direction: column;
     align-items: center;
     justify-content: space-around;
