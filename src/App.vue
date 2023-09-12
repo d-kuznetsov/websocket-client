@@ -16,7 +16,7 @@ const board = ref(null)
 const activePlayerSymbol = ref('')
 const myPlayerSymbol = ref('')
 const result = ref('')
-const joke = ref('')
+const fact = ref('')
 
 const isWon = computed(() => result.value == 'win')
 const isLoss = computed(() => result.value == 'lose')
@@ -31,7 +31,6 @@ ws.addMessageHandler('wait', function handleWaiting() {
 })
 
 ws.addMessageHandler('start', function handlePlaying(data) {
-  debugger
   board.value = data.board
   myPlayerSymbol.value = data.symbol
   activePlayerSymbol.value = data.activePlayerSymbol
@@ -45,7 +44,7 @@ ws.addMessageHandler('update', function handleUpdate(data) {
 
 ws.addMessageHandler('finish', function handleGameOver(data) {
   result.value = data.result
-  joke.value = data.joke
+  fact.value = data.fact
   appState.value = STATE_GAME_OVER
 })
 
@@ -108,8 +107,8 @@ ws.connect()
       </div>
 
       <div v-else-if="isGameOver" class="App-gameOver">
-        <div v-if="joke">Your prize is a joke from Chuck Norris.</div>
-        <div v-if="joke">{{ joke }}</div>
+        <div v-if="fact">Your prize is a cat fact</div>
+        <div v-if="fact">{{ fact }}</div>
         <button class="App-reload" @click="reload">Try again</button>
       </div>
 
